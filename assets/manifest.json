@@ -2,23 +2,21 @@
   "name": "MObywatel",
   "short_name": "MObywatel",
   "start_url": "./card.html",
-"scope": "./"
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0b1220",
   "theme_color": "#0b1220",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://i.imgur.com/U7TRg0V.png",
+      "src": "./assets/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://i.imgur.com/U7TRg0V.png",
+      "src": "./assets/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
-
-
