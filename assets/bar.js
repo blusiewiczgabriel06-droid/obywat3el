@@ -1,17 +1,17 @@
 var params = new URLSearchParams(window.location.search);
 var ROUTES = {
-    home: 'home.html',
-    services: 'services.html',
-    qr: 'qr.html',
-    more: 'more.html',
-    moreid: 'moreid.html',
-    id: 'id.html',
-    shortcuts: 'shortcuts.html',
-    pesel: 'pesel.html',
-    scanqr: 'scanqr.html',
-    showqr: 'showqr.html',
-    gen: 'gen.html',
-    card: 'card.html',
+  home: '/home.html',
+  services: '/services.html',
+  qr: '/qr.html',
+  more: '/more.html',
+  moreid: '/moreid.html',
+  id: '/id.html',
+  shortcuts: '/shortcuts.html',
+  pesel: '/pesel.html',
+  scanqr: '/scanqr.html',
+  showqr: '/showqr.html',
+  gen: '/gen.html',
+  card: '/card.html',
 };
 
 function sendTo(key){
