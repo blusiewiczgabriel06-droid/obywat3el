@@ -125,47 +125,69 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 function generate(){
+  const code = document.getElementById("accessCode").value.trim();
+  const err = document.getElementById("codeErr");
+
+  if (!REQUIRED_CODES.includes(code)) {
+    err.style.display = "block";
+    return; // STOP
+  }
+  err.style.display = "none";
+
   const data = {
-    imie: imie.value,
-    nazwisko: nazwisko.value,
-    plec: plec.value,
-    data: toPLDate(dataUrodzenia.value), // 👈 TU JEST ZMIANA
-    pesel: pesel.value,
-    seria: seria.value,
-    wydanie: wydanie.value,
-    waznosc: waznosc.value,
-    ojciec: ojciec.value,
-    matka: matka.value,
-    obywatelstwo: obywatelstwo.value,
-    miejsce: miejsce.value,
-    kraj: kraj.value,
-    ulica: ulica.value,
-    kod: kod.value,
-    miasto: miasto.value,
-    zameldowanie: zameldowanie.value,
-    rodowe: rodowe.value,
-    rodoweOjca: rodoweOjca.value,
-    rodoweMatki: rodoweMatki.value,
+    imie: document.getElementById("imie").value,
+    nazwisko: document.getElementById("nazwisko").value,
+    plec: document.getElementById("plec").value,
+    data: toPLDate(document.getElementById("dataUrodzenia").value),
+    pesel: document.getElementById("pesel").value,
+    seria: document.getElementById("seria").value,
+    wydanie: document.getElementById("wydanie").value,
+    waznosc: document.getElementById("waznosc").value,
+    ojciec: document.getElementById("ojciec").value,
+    matka: document.getElementById("matka").value,
+    obywatelstwo: document.getElementById("obywatelstwo").value,
+    miejsce: document.getElementById("miejsce").value,
+    kraj: document.getElementById("kraj").value,
+    ulica: document.getElementById("ulica").value,
+    kod: document.getElementById("kod").value,
+    miasto: document.getElementById("miasto").value,
+    zameldowanie: document.getElementById("zameldowanie").value,
+    rodowe: document.getElementById("rodowe").value,
+    rodoweOjca: document.getElementById("rodoweOjca").value,
+    rodoweMatki: document.getElementById("rodoweMatki").value,
     photo: null
   };
-  
-  const f = photo?.files?.[0];
+
+  const f = document.getElementById("photo")?.files?.[0];
   if (f) {
     const r = new FileReader();
     r.onload = () => {
       data.photo = r.result;
       localStorage.setItem("mobywatel_user", JSON.stringify(data));
-      location.href = "./card.html";
+      location.href = "/card.html";
     };
     r.readAsDataURL(f);
   } else {
     localStorage.setItem("mobywatel_user", JSON.stringify(data));
-    location.href = "./card.html";
+    location.href = "/card.html";
   }
 }
+
 </script>
 <script>
-const REQUIRED_CODE = "A7F9K2M8Q","K7M9A2QF8","Z4P8N6A9M","Q2F7K9M8A","8A9KQ7M2F","M9QF2K7A8","A8K9F7Q2M","P7M9A8KQ2","Q9A2K8M7F","K8Q2M9F7A","A9M7Q8K2F"; // ustawiasz swój kod
+const REQUIRED_CODES = [
+  "A7F9K2M8Q",
+  "K7M9A2QF8",
+  "Z4P8N6A9M",
+  "Q2F7K9M8A",
+  "8A9KQ7M2F",
+  "M9QF2K7A8",
+  "A8K9F7Q2M",
+  "P7M9A8KQ2",
+  "Q9A2K8M7F",
+  "K8Q2M9F7A",
+  "A9M7Q8K2F"
+];
 
 window.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("accessCode");
@@ -181,7 +203,7 @@ window.addEventListener("DOMContentLoaded", () => {
   btn.style.opacity = "0.5";
 
   function validate(){
-    const ok = input.value.trim() === REQUIRED_CODE;
+   const ok = REQUIRED_CODES.includes(input.value.trim());
     btn.disabled = !ok;
     btn.style.opacity = ok ? "1" : "0.5";
     err.style.display = (!ok && input.value.trim().length) ? "block" : "none";
