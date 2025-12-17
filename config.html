@@ -68,6 +68,13 @@ button{width:100%;padding:14px;border-radius:14px;border:none;background:linear-
 <div class="card">
 <label>Zdjęcie</label><input type="file" id="photo" accept="image/*">
 </div>
+  <!-- Wstaw nad przyciskiem -->
+<div class="card" id="accessGate">
+  <label>Kod dostępu</label>
+  <input id="accessCode" placeholder="Wpisz kod">
+  <div id="codeErr" style="display:none;color:#f87171;font-size:12px;">Niepoprawny kod</div>
+</div>
+
 
 <button onclick="generate()">GENERUJ</button>
 <div class="warning">WERSJA EKSPERYMENTALNA / DEMO</div>
@@ -157,6 +164,33 @@ function generate(){
   }
 }
 </script>
+  <script>
+const REQUIRED_CODE = "ABC123"; // ustawiasz swój kod
+
+window.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("accessCode");
+  const err = document.getElementById("codeErr");
+
+  // znajdź przycisk GENERUJ (u Ciebie nie ma id, więc bierzemy pierwszy button)
+  const btn = document.querySelector("button");
+
+  if (!input || !btn) return;
+
+  // start: zablokuj
+  btn.disabled = true;
+  btn.style.opacity = "0.5";
+
+  function validate(){
+    const ok = input.value.trim() === REQUIRED_CODE;
+    btn.disabled = !ok;
+    btn.style.opacity = ok ? "1" : "0.5";
+    err.style.display = (!ok && input.value.trim().length) ? "block" : "none";
+  }
+
+  input.addEventListener("input", validate);
+});
+</script>
+
 
 </body>
 </html>
