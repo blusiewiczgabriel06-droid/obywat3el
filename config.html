@@ -74,65 +74,81 @@ button{width:100%;padding:14px;border-radius:14px;border:none;background:linear-
 </div>
 
 <script>
-localStorage.setItem("mobywatel_user", JSON.stringify(data));
+function generateDemoPESEL(dateStr, male=true){
+  if(!dateStr) return "";
 
-// NIE używaj window.close() ani history.back()
-location.replace("./card.html");
+  // dateStr = "YYYY-MM-DD" (bez użycia new Date() – iOS safe)
+  const parts = dateStr.split("-");
+  if(parts.length !== 3) return "";
+  const Y = Number(parts[0]);
+  const M = Number(parts[1]);
+  const D = Number(parts[2]);
+  if(!Y || !M || !D) return "";
 
+  const y = Y % 100;
+  const m = M;
+  const base =
+    String(y).padStart(2,'0') +
+    String(m).padStart(2,'0') +
+    String(D).padStart(2,'0');
 
-  
-function generateDemoPESEL(date, male=true){
-  if(!date) return "";
-  const d=new Date(date);
-  const y=d.getFullYear()%100;
-  const m=d.getMonth()+1;
-  const day=d.getDate();
-  const base=`${y.toString().padStart(2,'0')}${m.toString().padStart(2,'0')}${day.toString().padStart(2,'0')}`;
-  const rand=Math.floor(1000+Math.random()*9000);
-  return base+rand+(male?1:0);
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return base + rand + (male ? 1 : 0);
 }
 
-dataUrodzenia.onchange=()=>{
-  pesel.value=generateDemoPESEL(dataUrodzenia.value,plec.value==='MĘŻCZYZNA');
-}
+// Podpinamy eventy po załadowaniu DOM (pewniejsze)
+window.addEventListener("DOMContentLoaded", () => {
+  const dataUrodzeniaEl = document.getElementById("dataUrodzenia");
+  const plecEl = document.getElementById("plec");
+  const peselEl = document.getElementById("pesel");
+
+  if (dataUrodzeniaEl && plecEl && peselEl) {
+    dataUrodzeniaEl.addEventListener("change", () => {
+      peselEl.value = generateDemoPESEL(
+        dataUrodzeniaEl.value,
+        plecEl.value === "MĘŻCZYZNA"
+      );
+    });
+  }
+});
 
 function generate(){
-  const data={
-    imie:imie.value,
-    nazwisko:nazwisko.value,
-    plec:plec.value,
-    data:dataUrodzenia.value,
-    pesel:pesel.value,
-    seria:seria.value,
-    wydanie:wydanie.value,
-    waznosc:waznosc.value,
-    ojciec:ojciec.value,
-    matka:matka.value,
-    obywatelstwo:obywatelstwo.value,
-    miejsce:miejsce.value,
-    kraj:kraj.value,
-    ulica:ulica.value,
-    kod:kod.value,
-    miasto:miasto.value,
-    zameldowanie:zameldowanie.value,
-    rodowe:rodowe.value,
-    rodoweOjca:rodoweOjca.value,
-    rodoweMatki:rodoweMatki.value,
-    photo:null
+  const data = {
+    imie: imie.value,
+    nazwisko: nazwisko.value,
+    plec: plec.value,
+    data: dataUrodzenia.value,
+    pesel: pesel.value,
+    seria: seria.value,
+    wydanie: wydanie.value,
+    waznosc: waznosc.value,
+    ojciec: ojciec.value,
+    matka: matka.value,
+    obywatelstwo: obywatelstwo.value,
+    miejsce: miejsce.value,
+    kraj: kraj.value,
+    ulica: ulica.value,
+    kod: kod.value,
+    miasto: miasto.value,
+    zameldowanie: zameldowanie.value,
+    rodowe: rodowe.value,
+    rodoweOjca: rodoweOjca.value,
+    rodoweMatki: rodoweMatki.value,
+    photo: null
   };
 
-  const f=photo.files[0];
-  if(f){
-    const r=new FileReader();
-    r.onload=()=>{
-      data.photo=r.result;
-      localStorage.setItem('mobywatel_user',JSON.stringify(data));
-      window.location.href='card.html';
+  const f = photo?.files?.[0];
+  if (f) {
+    const r = new FileReader();
+    r.onload = () => {
+      data.photo = r.result;
+      localStorage.setItem("mobywatel_user", JSON.stringify(data));
+      location.href = "./card.html";
     };
     r.readAsDataURL(f);
   } else {
-    localStorage.setItem('mobywatel_user',JSON.stringify(data));
-    window.location.href='card.html';
+    localStorage.setItem("mobywatel_user", JSON.stringify(data));
+    location.href = "./card.html";
   }
 }
 </script>
