@@ -74,6 +74,13 @@ button{width:100%;padding:14px;border-radius:14px;border:none;background:linear-
 </div>
 
 <script>
+localStorage.setItem("mobywatel_user", JSON.stringify(data));
+
+// NIE używaj window.close() ani history.back()
+location.replace("./card.html");
+
+
+  
 function generateDemoPESEL(date, male=true){
   if(!date) return "";
   const d=new Date(date);
