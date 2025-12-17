@@ -95,6 +95,11 @@ function generateDemoPESEL(dateStr, male=true){
   const rand = Math.floor(1000 + Math.random() * 9000);
   return base + rand + (male ? 1 : 0);
 }
+function toPLDate(dateStr){ // "YYYY-MM-DD" -> "DD.MM.RRRR"
+  if(!dateStr) return "";
+  const [y, m, d] = dateStr.split("-");
+  return `${d}.${m}.${y}`;
+}
 
 // Podpinamy eventy po załadowaniu DOM (pewniejsze)
 window.addEventListener("DOMContentLoaded", () => {
@@ -117,7 +122,7 @@ function generate(){
     imie: imie.value,
     nazwisko: nazwisko.value,
     plec: plec.value,
-    data: dataUrodzenia.value,
+    data: toPLDate(dataUrodzenia.value), // 👈 TU JEST ZMIANA
     pesel: pesel.value,
     seria: seria.value,
     wydanie: wydanie.value,
@@ -136,7 +141,7 @@ function generate(){
     rodoweMatki: rodoweMatki.value,
     photo: null
   };
-
+  
   const f = photo?.files?.[0];
   if (f) {
     const r = new FileReader();
