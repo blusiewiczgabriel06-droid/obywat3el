@@ -1,4 +1,22 @@
+<script>
+  const KEY = "mobywatel_user";
+
+  try {
+    const data = localStorage.getItem(KEY);
+
+    if (!data) {
+      // brak danych → idź do konfiguratora
+      location.replace("./config.html");
+    }
+  } catch (e) {
+    // iOS safety
+    location.replace("./config.html");
+  }
+</script>
+
+
 <head>
+    
     <title>mObywatel</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="assets/card.css?v=1.2">
