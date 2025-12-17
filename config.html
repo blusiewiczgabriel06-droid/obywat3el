@@ -1,9 +1,19 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XYZObywatel v2.0 – konfigurator</title>
+  <meta charset="UTF-8">
+  <title>XYZObywatel v2.0 – konfigurator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=0.8, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+
+  <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+  <link rel="manifest" href="assets/manifest.json">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <style>
 body{margin:0;font-family:system-ui;background:radial-gradient(circle at top,#1b1f3b,#05060f);color:#fff}
 .container{max-width:420px;margin:auto;padding:16px}
@@ -14,7 +24,9 @@ input,select{width:100%;margin:6px 0 12px;padding:12px;border-radius:12px;border
 button{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;font-size:16px;font-weight:600}
 .warning{text-align:center;font-size:11px;opacity:.5;margin-top:12px}
 </style>
+  <script defer src="assets/pwa.js"></script>
 </head>
+
 <body>
 
 <div class="container" id="form">
@@ -61,86 +73,61 @@ button{width:100%;padding:14px;border-radius:14px;border:none;background:linear-
 <div class="warning">WERSJA EKSPERYMENTALNA / DEMO</div>
 </div>
 
-
-
-
-
 <script>
-function generateDemoPESEL(date, male = true) {
-  if (!date) return "";
-
-  const d = new Date(date);
-  const y = d.getFullYear() % 100;
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-
-  // YYMMDD
-  const base =
-    y.toString().padStart(2, "0") +
-    m.toString().padStart(2, "0") +
-    day.toString().padStart(2, "0");
-
-  // 4 losowe cyfry
-  const random = Math.floor(1000 + Math.random() * 9000);
-
-  // cyfra płci (tylko wizualna)
-  const sexDigit = male ? 1 : 0;
-
-  return base + random + sexDigit;
+function generateDemoPESEL(date, male=true){
+  if(!date) return "";
+  const d=new Date(date);
+  const y=d.getFullYear()%100;
+  const m=d.getMonth()+1;
+  const day=d.getDate();
+  const base=`${y.toString().padStart(2,'0')}${m.toString().padStart(2,'0')}${day.toString().padStart(2,'0')}`;
+  const rand=Math.floor(1000+Math.random()*9000);
+  return base+rand+(male?1:0);
 }
 
-
-
-
-
-dataUrodzenia.onchange = () => {
-  pesel.value = generateDemoPESEL(
-    dataUrodzenia.value,
-    plec.value === "MĘŻCZYZNA"
-  );
-};
+dataUrodzenia.onchange=()=>{
+  pesel.value=generateDemoPESEL(dataUrodzenia.value,plec.value==='MĘŻCZYZNA');
+}
 
 function generate(){
-  const data = {
-    imie: imie.value,
-    nazwisko: nazwisko.value,
-    plec: plec.value,
-    data: dataUrodzenia.value,
-    pesel: pesel.value,
-    seria: seria.value,
-    wydanie: wydanie.value,
-    waznosc: waznosc.value,
-    ojciec: ojciec.value,
-    matka: matka.value,
-    obywatelstwo: obywatelstwo.value,
-    miejsce: miejsce.value,
-    kraj: kraj.value,
-    ulica: ulica.value,
-    kod: kod.value,
-    miasto: miasto.value,
-    zameldowanie: zameldowanie.value,
-    rodowe: rodowe.value,
-    rodoweOjca: rodoweOjca.value,
-    rodoweMatki: rodoweMatki.value,
-    photo: null
+  const data={
+    imie:imie.value,
+    nazwisko:nazwisko.value,
+    plec:plec.value,
+    data:dataUrodzenia.value,
+    pesel:pesel.value,
+    seria:seria.value,
+    wydanie:wydanie.value,
+    waznosc:waznosc.value,
+    ojciec:ojciec.value,
+    matka:matka.value,
+    obywatelstwo:obywatelstwo.value,
+    miejsce:miejsce.value,
+    kraj:kraj.value,
+    ulica:ulica.value,
+    kod:kod.value,
+    miasto:miasto.value,
+    zameldowanie:zameldowanie.value,
+    rodowe:rodowe.value,
+    rodoweOjca:rodoweOjca.value,
+    rodoweMatki:rodoweMatki.value,
+    photo:null
   };
 
-  const f = photo.files[0];
-  if (f) {
-    const r = new FileReader();
-    r.onload = () => {
-      data.photo = r.result;
-      localStorage.setItem("mobywatel_user", JSON.stringify(data));
-      window.location.href = "home.html";
+  const f=photo.files[0];
+  if(f){
+    const r=new FileReader();
+    r.onload=()=>{
+      data.photo=r.result;
+      localStorage.setItem('mobywatel_user',JSON.stringify(data));
+      window.location.href='home.html';
     };
     r.readAsDataURL(f);
   } else {
-    localStorage.setItem("mobywatel_user", JSON.stringify(data));
-    window.location.href = "home.html";
+    localStorage.setItem('mobywatel_user',JSON.stringify(data));
+    window.location.href='home.html';
   }
 }
-</script>
-
 </script>
 
 </body>
