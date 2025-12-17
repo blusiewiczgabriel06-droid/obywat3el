@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XYZObywatel v2.0 – konfigurator</title>
+<style>
+body{margin:0;font-family:system-ui;background:radial-gradient(circle at top,#1b1f3b,#05060f);color:#fff}
+.container{max-width:420px;margin:auto;padding:16px}
+h1{text-align:center;margin:16px 0;font-weight:600}
+.card{background:rgba(255,255,255,.05);border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 0 25px rgba(140,100,255,.25)}
+label{font-size:12px;opacity:.8}
+input,select{width:100%;margin:6px 0 12px;padding:12px;border-radius:12px;border:none;background:rgba(0,0,0,.4);color:#fff;font-size:14px}
+button{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;font-size:16px;font-weight:600}
+.warning{text-align:center;font-size:11px;opacity:.5;margin-top:12px}
+</style>
+</head>
+<body>
+
+<div class="container" id="form">
+<h1>konfigurator Mobywatel</h1>
+
+<div class="card">
+<label>Imię</label><input id="imie">
+<label>Nazwisko</label><input id="nazwisko">
+<label>Płeć</label>
+<select id="plec"><option>MĘŻCZYZNA</option><option>KOBIETA</option></select>
+<label>Data urodzenia</label><input type="date" id="dataUrodzenia">
+<label>PESEL</label><input id="pesel" readonly>
+<label>Seria i numer mDowodu</label><input id="seria" value="MWYC" readonly>
+<label>Data wydania</label><input id="wydanie" value="14.07.2023" readonly>
+<label>Termin ważności</label><input id="waznosc" value="14.07.2028" readonly>
+</div>
+
+<div class="card">
+<label>Imię ojca</label><input id="ojciec">
+<label>Imię matki</label><input id="matka">
+<label>Obywatelstwo</label><input id="obywatelstwo" value="POLSKIE">
+<label>Miejsce urodzenia</label><input id="miejsce">
+<label>Kraj urodzenia</label><input id="kraj" value="Polska">
+</div>
+
+<div class="card">
+<label>Ulica i numer</label><input id="ulica">
+<label>Kod pocztowy</label><input id="kod">
+<label>Miasto</label><input id="miasto">
+<label>Data zameldowania</label><input type="date" id="zameldowanie">
+</div>
+
+<div class="card">
+<label>Nazwisko rodowe (Twoje)</label><input id="rodowe">
+<label>Nazwisko rodowe ojca</label><input id="rodoweOjca">
+<label>Nazwisko rodowe matki</label><input id="rodoweMatki">
+</div>
+
+<div class="card">
+<label>Zdjęcie</label><input type="file" id="photo" accept="image/*">
+</div>
+
+<button onclick="generate()">GENERUJ</button>
+<div class="warning">WERSJA EKSPERYMENTALNA / DEMO</div>
+</div>
+
+<script>
+function generatePESEL(date, male=true){
+ const d=new Date(date);let y=d.getFullYear();let m=d.getMonth()+1;let day=d.getDate();
+ let mm=m+(y>=2000?20:0);let base=`${y%100}${mm.toString().padStart(2,'0')}${day.toString().padStart(2,'0')}`;
+ let rand=Math.floor(1000+Math.random()*9000);
+ let sex=male?1:0;
+ return base+rand+sex;
+}
+
+dataUrodzenia.onchange=()=>{
+ pesel.value=generatePESEL(dataUrodzenia.value,plec.value==='MĘŻCZYZNA');
+}
+
+function generate(){
+  const data = {
+    imie: imie.value,
+    nazwisko: nazwisko.value,
+    plec: plec.value,
+    data: dataUrodzenia.value,
+    pesel: pesel.value,
+    seria: seria.value,
+    wydanie: wydanie.value,
+    waznosc: waznosc.value,
+    ojciec: ojciec.value,
+    matka: matka.value,
+    obywatelstwo: obywatelstwo.value,
+    miejsce: miejsce.value,
+    kraj: kraj.value,
+    ulica: ulica.value,
+    kod: kod.value,
+    miasto: miasto.value,
+    zameldowanie: zameldowanie.value,
+    rodowe: rodowe.value,
+    rodoweOjca: rodoweOjca.value,
+    rodoweMatki: rodoweMatki.value,
+    photo: null
+  };
+
+  const f = photo.files[0];
+  if (f) {
+    const r = new FileReader();
+    r.onload = () => {
+      data.photo = r.result;
+      localStorage.setItem("mobywatel_user", JSON.stringify(data));
+      window.location.href = "home.html";
+    };
+    r.readAsDataURL(f);
+  } else {
+    localStorage.setItem("mobywatel_user", JSON.stringify(data));
+    window.location.href = "home.html";
+  }
+}
+</script>
+
+</script>
+
+</body>
+</html>
