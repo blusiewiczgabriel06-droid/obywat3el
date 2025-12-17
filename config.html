@@ -76,140 +76,169 @@ button{width:100%;padding:14px;border-radius:14px;border:none;background:linear-
 </div>
 
 
-<button onclick="generate()">GENERUJ</button>
+<button id="genBtn" type="button" disabled style="opacity:.5">GENERUJ</button>
 <div class="warning">WERSJA EKSPERYMENTALNA / DEMO</div>
 </div>
 
 <script>
+
+const ALLOWED_HASHES = [
+  "1f8aea262077b28713a63e65d3ef5df8172d2142f6eeaaf9327bf2866c9711db", 
+  "9c3f4bdccc1bde8827b485ecbcfcd3f9280898efeba3d63bb3e322810886628b", 
+  "3d41ba74d651f2cc3ce85c4b583f9392b7a56995a2d41fa53ad28e33c80eb8b6", 
+  "494854fdf3edaec9cab146803cf641d946fd817b3d9542f4e205d26a4b90f140", 
+  "90198a971017448f9eafe4df59b5ac305ba54f0316e8d07196239ff16aca076c", 
+  "0980a684b8812ef54c705dc52e56460477b29f4045d53a7c65a6879896dfc871", 
+  "20f5d6a3f71eae99d049c1fb3216a65040dac858d5d8ee75ab541c49daa4b52e", 
+  "8c4758b3dac1f15a9fee409594558a4f0d4779642cb4db05420c424974f26509", 
+  "c430933d91f5f666d60f8779b009e5ad4345398864bffc42347a88b90b43d719", 
+  "dbde46fbb849658e3393265109c7068ac7e0fb8b84a86e8a4bb5cc1e601775b2", 
+  "af3873ef8a377016545b9956e71304af45fb2b27c74d75bb3a96f5b30a8cd3c7"  
+];
+
+/** 2) Pomocnicze */
+async function sha256hex(text){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+function getUsedSet(){
+  try {
+    return new Set(JSON.parse(localStorage.getItem("used_code_hashes") || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveUsedSet(set){
+  localStorage.setItem("used_code_hashes", JSON.stringify([...set]));
+}
+
+/** 3) PESEL (iOS-safe) */
 function generateDemoPESEL(dateStr, male=true){
   if(!dateStr) return "";
-
-  // dateStr = "YYYY-MM-DD" (bez użycia new Date() – iOS safe)
   const parts = dateStr.split("-");
   if(parts.length !== 3) return "";
-  const Y = Number(parts[0]);
-  const M = Number(parts[1]);
-  const D = Number(parts[2]);
+  const Y = Number(parts[0]), M = Number(parts[1]), D = Number(parts[2]);
   if(!Y || !M || !D) return "";
-
-  const y = Y % 100;
-  const m = M;
-  const base =
-    String(y).padStart(2,'0') +
-    String(m).padStart(2,'0') +
-    String(D).padStart(2,'0');
-
+  const base = String(Y%100).padStart(2,'0') + String(M).padStart(2,'0') + String(D).padStart(2,'0');
   const rand = Math.floor(1000 + Math.random() * 9000);
   return base + rand + (male ? 1 : 0);
 }
-function toPLDate(dateStr){ // "YYYY-MM-DD" -> "DD.MM.RRRR"
+
+function toPLDate(dateStr){
   if(!dateStr) return "";
-  const [y, m, d] = dateStr.split("-");
+  const [y,m,d] = dateStr.split("-");
   return `${d}.${m}.${y}`;
 }
 
-// Podpinamy eventy po załadowaniu DOM (pewniejsze)
+/** 4) Logika bramki + generowanie */
 window.addEventListener("DOMContentLoaded", () => {
   const dataUrodzeniaEl = document.getElementById("dataUrodzenia");
   const plecEl = document.getElementById("plec");
   const peselEl = document.getElementById("pesel");
 
+  const codeInput = document.getElementById("accessCode");
+  const codeErr = document.getElementById("codeErr");
+  const genBtn = document.getElementById("genBtn");
+
+  // PESEL onchange
   if (dataUrodzeniaEl && plecEl && peselEl) {
     dataUrodzeniaEl.addEventListener("change", () => {
-      peselEl.value = generateDemoPESEL(
-        dataUrodzeniaEl.value,
-        plecEl.value === "MĘŻCZYZNA"
-      );
+      peselEl.value = generateDemoPESEL(dataUrodzeniaEl.value, plecEl.value === "MĘŻCZYZNA");
     });
   }
-});
 
-function generate(){
-  const code = document.getElementById("accessCode").value.trim();
-  const err = document.getElementById("codeErr");
+  // Walidacja kodu (jednorazowy)
+  async function validateCode(){
+    const v = (codeInput?.value || "").trim();
+    if(!v){
+      genBtn.disabled = true; genBtn.style.opacity = "0.5";
+      codeErr.style.display = "none";
+      return;
+    }
 
-  if (!REQUIRED_CODES.includes(code)) {
-    err.style.display = "block";
-    return; // STOP
+    const h = await sha256hex(v);
+    const used = getUsedSet();
+
+    const ok = ALLOWED_HASHES.includes(h) && !used.has(h);
+
+    genBtn.disabled = !ok;
+    genBtn.style.opacity = ok ? "1" : "0.5";
+    codeErr.style.display = ok ? "none" : "block";
+    // tekst błędu (zajebiście pomocne)
+    codeErr.textContent = ALLOWED_HASHES.includes(h) && used.has(h)
+      ? "Ten kod został już użyty"
+      : "Niepoprawny kod";
   }
-  err.style.display = "none";
 
-  const data = {
-    imie: document.getElementById("imie").value,
-    nazwisko: document.getElementById("nazwisko").value,
-    plec: document.getElementById("plec").value,
-    data: toPLDate(document.getElementById("dataUrodzenia").value),
-    pesel: document.getElementById("pesel").value,
-    seria: document.getElementById("seria").value,
-    wydanie: document.getElementById("wydanie").value,
-    waznosc: document.getElementById("waznosc").value,
-    ojciec: document.getElementById("ojciec").value,
-    matka: document.getElementById("matka").value,
-    obywatelstwo: document.getElementById("obywatelstwo").value,
-    miejsce: document.getElementById("miejsce").value,
-    kraj: document.getElementById("kraj").value,
-    ulica: document.getElementById("ulica").value,
-    kod: document.getElementById("kod").value,
-    miasto: document.getElementById("miasto").value,
-    zameldowanie: document.getElementById("zameldowanie").value,
-    rodowe: document.getElementById("rodowe").value,
-    rodoweOjca: document.getElementById("rodoweOjca").value,
-    rodoweMatki: document.getElementById("rodoweMatki").value,
-    photo: null
-  };
+  codeInput.addEventListener("input", validateCode);
 
-  const f = document.getElementById("photo")?.files?.[0];
-  if (f) {
-    const r = new FileReader();
-    r.onload = () => {
-      data.photo = r.result;
+  // Klik GENERUJ
+  genBtn.addEventListener("click", async () => {
+    const code = (codeInput.value || "").trim();
+    const h = await sha256hex(code);
+    const used = getUsedSet();
+
+    if(!ALLOWED_HASHES.includes(h) || used.has(h)){
+      codeErr.style.display = "block";
+      codeErr.textContent = used.has(h) ? "Ten kod został już użyty" : "Niepoprawny kod";
+      return;
+    }
+
+    // budowa danych (bez polegania na globalnych zmiennych id — stabilne na iOS)
+    const v = (id) => document.getElementById(id)?.value ?? "";
+
+    const data = {
+      imie: v("imie"),
+      nazwisko: v("nazwisko"),
+      plec: v("plec"),
+      data: toPLDate(v("dataUrodzenia")),
+      pesel: v("pesel"),
+      seria: v("seria"),
+      wydanie: v("wydanie"),
+      waznosc: v("waznosc"),
+      ojciec: v("ojciec"),
+      matka: v("matka"),
+      obywatelstwo: v("obywatelstwo"),
+      miejsce: v("miejsce"),
+      kraj: v("kraj"),
+      ulica: v("ulica"),
+      kod: v("kod"),
+      miasto: v("miasto"),
+      zameldowanie: v("zameldowanie"),
+      rodowe: v("rodowe"),
+      rodoweOjca: v("rodoweOjca"),
+      rodoweMatki: v("rodoweMatki"),
+      photo: null,
+
+      // zapisujemy hash kodu (przyda się jeśli kiedyś dodasz bramkę na card.html)
+      _accessHash: h
+    };
+
+    // foto
+    const f = document.getElementById("photo")?.files?.[0];
+    const finish = () => {
       localStorage.setItem("mobywatel_user", JSON.stringify(data));
+
+      // OZNACZ KOD JAKO UŻYTY (jednorazowy)
+      used.add(h);
+      saveUsedSet(used);
+
       location.href = "/card.html";
     };
-    r.readAsDataURL(f);
-  } else {
-    localStorage.setItem("mobywatel_user", JSON.stringify(data));
-    location.href = "/card.html";
-  }
-}
 
-</script>
-<script>
-const REQUIRED_CODES = [
-  "A7F9K2M8Q",
-  "K7M9A2QF8",
-  "Z4P8N6A9M",
-  "Q2F7K9M8A",
-  "8A9KQ7M2F",
-  "M9QF2K7A8",
-  "A8K9F7Q2M",
-  "P7M9A8KQ2",
-  "Q9A2K8M7F",
-  "K8Q2M9F7A",
-  "A9M7Q8K2F"
-];
+    if (f) {
+      const r = new FileReader();
+      r.onload = () => { data.photo = r.result; finish(); };
+      r.readAsDataURL(f);
+    } else {
+      finish();
+    }
+  });
 
-window.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("accessCode");
-  const err = document.getElementById("codeErr");
-
-
-  const btn = document.querySelector("button");
-
-  if (!input || !btn) return;
-
-  
-  btn.disabled = true;
-  btn.style.opacity = "0.5";
-
-  function validate(){
-   const ok = REQUIRED_CODES.includes(input.value.trim());
-    btn.disabled = !ok;
-    btn.style.opacity = ok ? "1" : "0.5";
-    err.style.display = (!ok && input.value.trim().length) ? "block" : "none";
-  }
-
-  input.addEventListener("input", validate);
+  // pierwszy run walidacji
+  validateCode();
 });
 </script>
 
