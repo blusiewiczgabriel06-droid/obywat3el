@@ -61,18 +61,44 @@ button{width:100%;padding:14px;border-radius:14px;border:none;background:linear-
 <div class="warning">WERSJA EKSPERYMENTALNA / DEMO</div>
 </div>
 
+
+
+
+
 <script>
-function generatePESEL(date, male=true){
- const d=new Date(date);let y=d.getFullYear();let m=d.getMonth()+1;let day=d.getDate();
- let mm=m+(y>=2000?20:0);let base=`${y%100}${mm.toString().padStart(2,'0')}${day.toString().padStart(2,'0')}`;
- let rand=Math.floor(1000+Math.random()*9000);
- let sex=male?1:0;
- return base+rand+sex;
+function generateDemoPESEL(date, male = true) {
+  if (!date) return "";
+
+  const d = new Date(date);
+  const y = d.getFullYear() % 100;
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+
+  // YYMMDD
+  const base =
+    y.toString().padStart(2, "0") +
+    m.toString().padStart(2, "0") +
+    day.toString().padStart(2, "0");
+
+  // 4 losowe cyfry
+  const random = Math.floor(1000 + Math.random() * 9000);
+
+  // cyfra płci (tylko wizualna)
+  const sexDigit = male ? 1 : 0;
+
+  return base + random + sexDigit;
 }
 
-dataUrodzenia.onchange=()=>{
- pesel.value=generatePESEL(dataUrodzenia.value,plec.value==='MĘŻCZYZNA');
-}
+
+
+
+
+dataUrodzenia.onchange = () => {
+  pesel.value = generateDemoPESEL(
+    dataUrodzenia.value,
+    plec.value === "MĘŻCZYZNA"
+  );
+};
 
 function generate(){
   const data = {
