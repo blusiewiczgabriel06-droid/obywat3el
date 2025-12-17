@@ -69,11 +69,50 @@ if (unfold){
   })
 }
 
-var data = {}
 
+// ------------------------------
+// Persistent profile storage (fix for iOS/PWA restart)
+// The generator passes data via query params. After launching from Home Screen,
+// the query string is usually missing, so we persist the last profile to localStorage.
+// ------------------------------
+function storageAvailable(){
+  try{
+    var k = "__mobywatel_test__";
+    localStorage.setItem(k, "1");
+    localStorage.removeItem(k);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+var STORE_KEY = "mobywatel_profile_v1";
+
+// Load persisted profile
+var persisted = {};
+if (storageAvailable()){
+  try{
+    persisted = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {};
+  }catch(e){
+    persisted = {};
+  }
+}
+
+// Read incoming params (if any)
+var incoming = {};
 var params = new URLSearchParams(window.location.search);
-for (var key of params.keys()){
-  data[key] = params.get(key);
+params.forEach(function(v, k){
+  incoming[k] = v;
+});
+
+// Merge: persisted -> incoming (incoming wins)
+var data = Object.assign({}, persisted, incoming);
+
+// Persist merged profile if anything came in via URL
+if (storageAvailable() && Object.keys(incoming).length){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify(data));
+  }catch(e){ /* ignore */ }
 }
 
 var ownImgEl = document.querySelector(".id_own_image");
@@ -115,7 +154,10 @@ setData("fathersFamilyName", data['fathersFamilyName']);
 setData("mothersFamilyName", data['mothersFamilyName']);
 setData("birthPlace", data['birthPlace']);
 setData("countryOfBirth", data['countryOfBirth']);
-setData("adress", "ul. " + data['adress1'] + "<br>" + data['adress2'] + " " + data['city']);
+if (data["adress1"] || data["adress2"] || data["city"]){
+  setData("adress", "ul. " + (data["adress1"]||"") + "<br>" + (data["adress2"]||"") + " " + (data["city"]||""));
+}
+
 // First names of parents
 setData("father_name", data['father_name'] || '');
 setData("mother_name", data['mother_name'] || '');
@@ -191,59 +233,3 @@ function getRandom(min, max) {
     });
   }catch(e){}
 })();
-
-
-// --- USER DATA (localStorage) ---
-function formatDateToPL(value){
-  if(!value) return "";
-  // supports "YYYY-MM-DD" or "DD.MM.YYYY"
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const [y,m,d]=value.split("-");
-    return `${d}.${m}.${y}`;
-  }
-  return value;
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const raw = localStorage.getItem("mobywatel_user") || localStorage.getItem("xyzobywatel");
-  if(!raw) return;
-  let data;
-  try { data = JSON.parse(raw); } catch(e){ return; }
-
-  const setText = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val ?? "";
-  };
-
-  setText("name", data.imie || "");
-  setText("surname", data.nazwisko || "");
-  setText("sex", data.plec || "");
-  setText("birthday", formatDateToPL((data.dataUrodzenia || data.data) || ""));
-  setText("pesel", data.pesel || "");
-  setText("nationality", (data.obywatelstwo || "").toUpperCase());
-
-  setText("mdow_series", data.seria || "");
-  setText("issue_date", formatDateToPL(data.wydanie || ""));
-  setText("expiry_date", formatDateToPL(data.waznosc || ""));
-
-  setText("father_name", data.ojciec || "");
-  setText("mother_name", data.matka || "");
-
-  setText("familyName", data.rodowe || "");
-  setText("fathersFamilyName", data.rodoweOjca || "");
-  setText("mothersFamilyName", data.rodoweMatki || "");
-
-  setText("birthPlace", data.miejsce || "");
-  setText("countryOfBirth", data.kraj || "");
-
-  const addrParts = [];
-  if (data.ulica) addrParts.push(data.ulica);
-  const cityLine = [data.kod, data.miasto].filter(Boolean).join(" ");
-  if (cityLine) addrParts.push(cityLine);
-  setText("adress", addrParts.join(", "));
-
-  const ownImgEl = document.querySelector(".id_own_image");
-  if (ownImgEl && data.photo) {
-    ownImgEl.style.backgroundImage = `url("${data.photo}")`;
-  }
-});

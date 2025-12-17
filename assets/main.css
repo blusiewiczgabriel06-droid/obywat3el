@@ -35,7 +35,7 @@ body{
 }
 
 p, input{
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, Helvetica, Arial, sans-serif;
+    font-family: "Poppins", sans-serif;
     color: white;
 }
 

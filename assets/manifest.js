@@ -1,21 +1,12 @@
-{
-  "name": "XYZObywatel",
-  "short_name": "XYZObywatel",
-  "start_url": "/config.html",
-  "display": "standalone",
-  "background_color": "#0b1220",
-  "theme_color": "#0b1220",
-  "orientation": "portrait",
-  "icons": [
-    {
-      "src": "https://i.imgur.com/U7TRg0V.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://i.imgur.com/U7TRg0V.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+let webManifest = {
+    "name": "",
+    "short_name": "",
+    "theme_color": "#f5f6fb",
+    "background_color": "#f5f6fb",
+    "display": "standalone"
+};
+
+let manifestElem = document.createElement('link');
+manifestElem.setAttribute('rel', 'manifest');
+manifestElem.setAttribute('href', 'data:application/manifest+json;base64,' + btoa(JSON.stringify(webManifest)));
+document.head.prepend(manifestElem);

@@ -1,14 +1,4 @@
 
-const user = JSON.parse(localStorage.getItem("mobywatel_user"));
-
-if (user) {
-  document.querySelector("#name").innerText = user.imie + " " + user.nazwisko;
-  document.querySelector("#pesel").innerText = user.pesel;
-  document.querySelector("#birth").innerText = user.data;
-  document.querySelector("#father").innerText = user.ojciec;
-  document.querySelector("#mother").innerText = user.matka;
-}
-
 var params = new URLSearchParams(window.location.search);
 
 document.querySelector(".login").addEventListener('click', () => {
@@ -24,7 +14,7 @@ if (date.getHours() >= 18){
 document.querySelector(".welcome").innerHTML = welcome;
 
 function toHome(){
-    location.href = '/home?' + params;
+    location.href = 'home.html?' + params.toString();
 }
 
 var input = document.querySelector(".password_input");
@@ -81,10 +71,3 @@ eye.addEventListener('click', () => {
         input.value = original;
     }
 })
-
-
-if (user.photo) {
-  document.querySelector("#photo").src = user.photo;
-}
-
-localStorage.setItem("mobywatel_user", JSON.stringify(data));
