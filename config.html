@@ -120,12 +120,12 @@ function generate(){
     r.onload=()=>{
       data.photo=r.result;
       localStorage.setItem('mobywatel_user',JSON.stringify(data));
-      window.location.href='home.html';
+      window.location.href='card.html';
     };
     r.readAsDataURL(f);
   } else {
     localStorage.setItem('mobywatel_user',JSON.stringify(data));
-    window.location.href='home.html';
+    window.location.href='card.html';
   }
 }
 </script>
