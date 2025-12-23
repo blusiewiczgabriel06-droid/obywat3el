@@ -249,30 +249,57 @@ window.addEventListener("DOMContentLoaded", () => {
       _accessHash: h
     };
 
-    // foto
-    const f = document.getElementById("photo")?.files?.[0];
-    const finish = () => {
-      localStorage.setItem("mobywatel_user", JSON.stringify(data));
+   // foto
+const f = document.getElementById("photo")?.files?.[0];
 
-      // OZNACZ KOD JAKO UŻYTY (jednorazowy)
-      used.add(h);
-      saveUsedSet(used);
+const finish = () => {
+  // 1) Zapis "surowy" (zostaje)
+  localStorage.setItem("mobywatel_user", JSON.stringify(data));
 
-      location.href = "/card.html";
-    };
+  // 2) Zapis w formacie, którego używa assets/card.js
+  const profile = {
+    name: data.imie || "",
+    surname: data.nazwisko || "",
+    nationality: data.obywatelstwo || "",
+    birthday: data.data || "",              // DD.MM.RRRR
+    pesel: data.pesel || "",
 
-    if (f) {
-      const r = new FileReader();
-      r.onload = () => { data.photo = r.result; finish(); };
-      r.readAsDataURL(f);
-    } else {
-      finish();
-    }
-  });
+    // card.js zwykle oczekuje "m" / "k"
+    sex: (data.plec === "MĘŻCZYZNA") ? "m" : "k",
 
-  // pierwszy run walidacji
-  validateCode();
-});
+    mdow_series: data.seria || "",
+    expiry_date: data.waznosc || "",
+    issue_date: data.wydanie || "",
+    father_name: data.ojciec || "",
+    mother_name: data.matka || "",
+
+    familyName: data.rodowe || "",
+    fathersFamilyName: data.rodoweOjca || "",
+    mothersFamilyName: data.rodoweMatki || "",
+    birthPlace: data.miejsce || "",
+    countryOfBirth: data.kraj || "",
+
+    adress: `${data.ulica || ""}${data.ulica ? ", " : ""}${data.kod || ""}${(data.kod && data.miasto) ? " " : ""}${data.miasto || ""}`.trim()
+  };
+
+  localStorage.setItem("mobywatel_profile_v1", JSON.stringify(profile));
+
+  // 3) OZNACZ KOD JAKO UŻYTY (jednorazowy)
+  used.add(h);
+  saveUsedSet(used);
+
+  // 4) Przejście na kartę
+  location.href = "/card.html";
+};
+
+if (f) {
+  const r = new FileReader();
+  r.onload = () => { data.photo = r.result; finish(); };
+  r.readAsDataURL(f);
+} else {
+  finish();
+}
+
 </script>
 
 
