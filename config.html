@@ -69,92 +69,23 @@ button{width:100%;padding:14px;border-radius:14px;border:none;background:linear-
 <label>Zdjęcie</label><input type="file" id="photo" accept="image/*">
 </div>
 
-<div class="card" id="accessGate">
-  <label>Kod dostępu</label>
-  <input id="accessCode" placeholder="Wpisz kod">
-  <div id="codeErr" style="display:none;color:#f87171;font-size:12px;">Niepoprawny kod</div>
-</div>
 
 
-<button id="genBtn" type="button" disabled style="opacity:.5">GENERUJ</button>
+<button id="genBtn" type="button">GENERUJ</button>
+
 <div class="warning">WERSJA EKSPERYMENTALNA / DEMO</div>
 </div>
 
 <script>
-
-const ALLOWED_HASHES = [
-  "1f8aea262077b28713a63e65d3ef5df8172d2142f6eeaaf9327bf2866c9711db", 
-  "9c3f4bdccc1bde8827b485ecbcfcd3f9280898efeba3d63bb3e322810886628b", 
-  "3d41ba74d651f2cc3ce85c4b583f9392b7a56995a2d41fa53ad28e33c80eb8b6", 
-  "494854fdf3edaec9cab146803cf641d946fd817b3d9542f4e205d26a4b90f140", 
-  "90198a971017448f9eafe4df59b5ac305ba54f0316e8d07196239ff16aca076c", 
-  "0980a684b8812ef54c705dc52e56460477b29f4045d53a7c65a6879896dfc871", 
-  "20f5d6a3f71eae99d049c1fb3216a65040dac858d5d8ee75ab541c49daa4b52e", 
-  "8c4758b3dac1f15a9fee409594558a4f0d4779642cb4db05420c424974f26509", 
-  "c430933d91f5f666d60f8779b009e5ad4345398864bffc42347a88b90b43d719", 
-  "dbde46fbb849658e3393265109c7068ac7e0fb8b84a86e8a4bb5cc1e601775b2", 
-  "af3873ef8a377016545b9956e71304af45fb2b27c74d75bb3a96f5b30a8cd3c7" ,
-  "0b2f0c2a1e6b3ccfe5b0e0a2e15b7aab1d5d28e1f0a64b8df8b1a7b8d53b4c7d",
-  "5f0d7d9f6a6a66c6b36a1d3b75b57d7a6f77f2a3c9a1b6c3c7a5b8b5a9b7d1e2", 
-  "1f8aea262077b28713a63e65d3ef5df8172d2142f6eeaaf9327bf2866c9711db",
-  "9c3f4bdccc1bde8827b485ecbcfcd3f9280898efeba3d63bb3e322810886628b",
-  "3d41ba74d651f2cc3ce85c4b583f9392b7a56995a2d41fa53ad28e33c80eb8b6",
-  "494854fdf3edaec9cab146803cf641d946fd817b3d9542f4e205d26a4b90f140",
-  "90198a971017448f9eafe4df59b5ac305ba54f0316e8d07196239ff16aca076c",
-  "0980a684b8812ef54c705dc52e56460477b29f4045d53a7c65a6879896dfc871",
-  "20f5d6a3f71eae99d049c1fb3216a65040dac858d5d8ee75ab541c49daa4b52e",
-  "8c4758b3dac1f15a9fee409594558a4f0d4779642cb4db05420c424974f26509",
-  "c430933d91f5f666d60f8779b009e5ad4345398864bffc42347a88b90b43d719",
-  "dbde46fbb849658e3393265109c7068ac7e0fb8b84a86e8a4bb5cc1e601775b2",
-  "af3873ef8a377016545b9956e71304af45fb2b27c74d75bb3a96f5b30a8cd3c7",
-  "52cfd3340f814708a580fa375eea450b6165172c2a767dfd45a0fdd654964bf7",
-  "347c6dad196f8a6b635de8f7040d5705808c42c2581723a8f4bc0e11d5b0b64c",
-  "0ac70589d4f6443384ac880606166aefe0b9edea054ac7302f64d32d00f2cf32",
-  "290acb0439be5a1148c2aa0b7ca0afc729fa1542d66a352904f750eca3fb4fc2",
-  "d93dbee80d046e19404685ccef9ac1977abafe510554cf2f6b9040c29a3571f6",
-  "a0ff8f176d5b14955b9dda4ef96d1d2d46ef3e65732567df4bbe7dc9018d11d4",
-  "eea370c56625a4ead2e7611be808d25feadbceda42b02ed332d6972e4262e014",
-  "247df00d29bca0a30cf2230faf0ac832bfed91caf41ee0eb285dd73392fa58f0",
-  "bc11078e440155f014e1efa104518aa5f2a3dd4696156c60d2a28b3bcf671c12",
-  "cffd1be62ec2048d45cfba50d734649573fb1a97a25cc04a1c4dac985b989afc",
-  "c160d5adc2408accf70c8a01bda5f884b6a357552a184f92a9b1682345653eb7",
-  "b74a40cb368dafd7bcbffe1036d67a055b289a1b7cee2230e9c1a298ae72ee8d",
-  "e0a26ee34b6e84d10492524bc311d969132bd3b5639593b438f16e9be6f4213f",
-  "33ef918771b128dab193ca81c19c22bc0b8d1339ef1130253ee4ebf36cb0b229",
-  "3dbf0f8d5fcc50452394dafcfe945323dc8c1511a64a15cd34a4b52459e733a4",
-  "325708c17d617a1bbaaa9cdb8793f318996c2165cd33c05496fcbb7c52f3e8f7",
-  "7fce35c7ea3ac850397778e900329427958d3c85bf60745d9b0b8008a9a38416",
-  "b684d3191f26c46ed648f5ab71ea7984c7fb15962fc89913fc372c6814aabfa1",
-  "83a94ba618d15b60cb1784e64f5b7f50778bcba2eaa1ae0c5bb391c195a6e275",
-  "60a7e620c284389990cd8cb9d966e60e001039eddeac66897bdee4f862bf1004"
-];
-
-/** 2) Pomocnicze */
-async function sha256hex(text){
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
-}
-
-function getUsedSet(){
-  try {
-    return new Set(JSON.parse(localStorage.getItem("used_code_hashes") || "[]"));
-  } catch {
-    return new Set();
-  }
-}
-
-function saveUsedSet(set){
-  localStorage.setItem("used_code_hashes", JSON.stringify([...set]));
-}
-
-/** 3) PESEL (iOS-safe) */
+// ===== PESEL (iOS-safe) =====
 function generateDemoPESEL(dateStr, male=true){
   if(!dateStr) return "";
-  const parts = dateStr.split("-");
-  if(parts.length !== 3) return "";
-  const Y = Number(parts[0]), M = Number(parts[1]), D = Number(parts[2]);
+  const [Y,M,D] = dateStr.split("-").map(Number);
   if(!Y || !M || !D) return "";
-  const base = String(Y%100).padStart(2,'0') + String(M).padStart(2,'0') + String(D).padStart(2,'0');
+  const base =
+    String(Y%100).padStart(2,"0") +
+    String(M).padStart(2,"0") +
+    String(D).padStart(2,"0");
   const rand = Math.floor(1000 + Math.random() * 9000);
   return base + rand + (male ? 1 : 0);
 }
@@ -165,62 +96,19 @@ function toPLDate(dateStr){
   return `${d}.${m}.${y}`;
 }
 
-/** 4) Logika bramki + generowanie */
 window.addEventListener("DOMContentLoaded", () => {
-  const dataUrodzeniaEl = document.getElementById("dataUrodzenia");
-  const plecEl = document.getElementById("plec");
-  const peselEl = document.getElementById("pesel");
+  const d = document.getElementById("dataUrodzenia");
+  const p = document.getElementById("plec");
+  const pe = document.getElementById("pesel");
 
-  const codeInput = document.getElementById("accessCode");
-  const codeErr = document.getElementById("codeErr");
-  const genBtn = document.getElementById("genBtn");
-
-  // PESEL onchange
-  if (dataUrodzeniaEl && plecEl && peselEl) {
-    dataUrodzeniaEl.addEventListener("change", () => {
-      peselEl.value = generateDemoPESEL(dataUrodzeniaEl.value, plecEl.value === "MĘŻCZYZNA");
+  if(d && p && pe){
+    d.addEventListener("change", () => {
+      pe.value = generateDemoPESEL(d.value, p.value === "MĘŻCZYZNA");
     });
   }
 
-  // Walidacja kodu (jednorazowy)
-  async function validateCode(){
-    const v = (codeInput?.value || "").trim();
-    if(!v){
-      genBtn.disabled = true; genBtn.style.opacity = "0.5";
-      codeErr.style.display = "none";
-      return;
-    }
-
-    const h = await sha256hex(v);
-    const used = getUsedSet();
-
-    const ok = ALLOWED_HASHES.includes(h) && !used.has(h);
-
-    genBtn.disabled = !ok;
-    genBtn.style.opacity = ok ? "1" : "0.5";
-    codeErr.style.display = ok ? "none" : "block";
-    // tekst błędu (zajebiście pomocne)
-    codeErr.textContent = ALLOWED_HASHES.includes(h) && used.has(h)
-      ? "Ten kod został już użyty"
-      : "Niepoprawny kod";
-  }
-
-  codeInput.addEventListener("input", validateCode);
-
-  // Klik GENERUJ
-  genBtn.addEventListener("click", async () => {
-    const code = (codeInput.value || "").trim();
-    const h = await sha256hex(code);
-    const used = getUsedSet();
-
-    if(!ALLOWED_HASHES.includes(h) || used.has(h)){
-      codeErr.style.display = "block";
-      codeErr.textContent = used.has(h) ? "Ten kod został już użyty" : "Niepoprawny kod";
-      return;
-    }
-
-    // budowa danych (bez polegania na globalnych zmiennych id — stabilne na iOS)
-    const v = (id) => document.getElementById(id)?.value ?? "";
+  document.getElementById("genBtn").addEventListener("click", () => {
+    const v = id => document.getElementById(id)?.value ?? "";
 
     const data = {
       imie: v("imie"),
@@ -243,60 +131,48 @@ window.addEventListener("DOMContentLoaded", () => {
       rodowe: v("rodowe"),
       rodoweOjca: v("rodoweOjca"),
       rodoweMatki: v("rodoweMatki"),
-      photo: null,
-
-      // zapisujemy hash kodu (przyda się jeśli kiedyś dodasz bramkę na card.html)
-      _accessHash: h
+      photo: null
     };
 
-  // foto
-const f = document.getElementById("photo")?.files?.[0];
+    // zapis pod kartę (format assets/card.js)
+    const profile = {
+      name: data.imie,
+      surname: data.nazwisko,
+      nationality: data.obywatelstwo,
+      birthday: data.data,
+      pesel: data.pesel,
+      sex: data.plec === "MĘŻCZYZNA" ? "m" : "k",
+      mdow_series: data.seria,
+      expiry_date: data.waznosc,
+      issue_date: data.wydanie,
+      father_name: data.ojciec,
+      mother_name: data.matka,
+      familyName: data.rodowe,
+      fathersFamilyName: data.rodoweOjca,
+      mothersFamilyName: data.rodoweMatki,
+      birthPlace: data.miejsce,
+      countryOfBirth: data.kraj,
+      adress: `${data.ulica}, ${data.kod} ${data.miasto}`
+    };
 
-const finish = () => {
-  // 1) Zapis "surowy"
-  localStorage.setItem("mobywatel_user", JSON.stringify(data));
+    const f = document.getElementById("photo")?.files?.[0];
+    const finish = () => {
+      localStorage.setItem("mobywatel_user", JSON.stringify(data));
+      localStorage.setItem("mobywatel_profile_v1", JSON.stringify(profile));
+      location.href = "/card.html";
+    };
 
-  // 2) Zapis pod assets/card.js
-  const profile = {
-    name: data.imie || "",
-    surname: data.nazwisko || "",
-    nationality: data.obywatelstwo || "",
-    birthday: data.data || "",
-    pesel: data.pesel || "",
-    sex: (data.plec === "MĘŻCZYZNA") ? "m" : "k",
-    mdow_series: data.seria || "",
-    expiry_date: data.waznosc || "",
-    issue_date: data.wydanie || "",
-    father_name: data.ojciec || "",
-    mother_name: data.matka || "",
-    familyName: data.rodowe || "",
-    fathersFamilyName: data.rodoweOjca || "",
-    mothersFamilyName: data.rodoweMatki || "",
-    birthPlace: data.miejsce || "",
-    countryOfBirth: data.kraj || "",
-    adress: `${data.ulica || ""}${data.ulica ? ", " : ""}${data.kod || ""}${(data.kod && data.miasto) ? " " : ""}${data.miasto || ""}`.trim()
-  };
-  localStorage.setItem("mobywatel_profile_v1", JSON.stringify(profile));
-
-  // 3) Jednorazowy kod – oznacz jako użyty (bez zależności od scope)
-  const usedSet = getUsedSet();   // <-- bierzemy świeżo
-  usedSet.add(h);                // h jest hashem kodu z kliknięcia
-  saveUsedSet(usedSet);
-
-  // 4) Przejście
-  location.href = "/card.html";
-};
-
-if (f) {
-  const r = new FileReader();
-  r.onload = () => { data.photo = r.result; finish(); };
-  r.readAsDataURL(f);
-} else {
-  finish();
-}
-
-
+    if(f){
+      const r = new FileReader();
+      r.onload = () => { data.photo = r.result; finish(); };
+      r.readAsDataURL(f);
+    } else {
+      finish();
+    }
+  });
+});
 </script>
+
 
 
 </body>
