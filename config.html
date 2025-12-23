@@ -249,46 +249,41 @@ window.addEventListener("DOMContentLoaded", () => {
       _accessHash: h
     };
 
-   // foto
+  // foto
 const f = document.getElementById("photo")?.files?.[0];
 
 const finish = () => {
-  // 1) Zapis "surowy" (zostaje)
+  // 1) Zapis "surowy"
   localStorage.setItem("mobywatel_user", JSON.stringify(data));
 
-  // 2) Zapis w formacie, którego używa assets/card.js
+  // 2) Zapis pod assets/card.js
   const profile = {
     name: data.imie || "",
     surname: data.nazwisko || "",
     nationality: data.obywatelstwo || "",
-    birthday: data.data || "",              // DD.MM.RRRR
+    birthday: data.data || "",
     pesel: data.pesel || "",
-
-    // card.js zwykle oczekuje "m" / "k"
     sex: (data.plec === "MĘŻCZYZNA") ? "m" : "k",
-
     mdow_series: data.seria || "",
     expiry_date: data.waznosc || "",
     issue_date: data.wydanie || "",
     father_name: data.ojciec || "",
     mother_name: data.matka || "",
-
     familyName: data.rodowe || "",
     fathersFamilyName: data.rodoweOjca || "",
     mothersFamilyName: data.rodoweMatki || "",
     birthPlace: data.miejsce || "",
     countryOfBirth: data.kraj || "",
-
     adress: `${data.ulica || ""}${data.ulica ? ", " : ""}${data.kod || ""}${(data.kod && data.miasto) ? " " : ""}${data.miasto || ""}`.trim()
   };
-
   localStorage.setItem("mobywatel_profile_v1", JSON.stringify(profile));
 
-  // 3) OZNACZ KOD JAKO UŻYTY (jednorazowy)
-  used.add(h);
-  saveUsedSet(used);
+  // 3) Jednorazowy kod – oznacz jako użyty (bez zależności od scope)
+  const usedSet = getUsedSet();   // <-- bierzemy świeżo
+  usedSet.add(h);                // h jest hashem kodu z kliknięcia
+  saveUsedSet(usedSet);
 
-  // 4) Przejście na kartę
+  // 4) Przejście
   location.href = "/card.html";
 };
 
@@ -299,6 +294,7 @@ if (f) {
 } else {
   finish();
 }
+
 
 </script>
 
